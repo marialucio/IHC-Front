@@ -1,0 +1,103 @@
+/* Frames 2/6/7 — coluna de dados (507px) + conteúdo (1150px) */
+.dashboard {
+  display: grid;
+  grid-template-columns: 507px 1fr;
+  gap: 93px;
+  align-items: start;
+}
+
+.dados-panel__name {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  height: 47px;
+  display: flex;
+  align-items: center;
+}
+.dados-panel__card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 40px 23px;
+  position: relative;
+  min-height: 673px;
+}
+
+.dados-campo {
+  margin-bottom: 18px;
+}
+.dados-campo__label {
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.dados-campo__valor {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: var(--radius);
+  padding: 0 19px;
+  font-size: 18px;
+  color: var(--color-text);
+}
+
+.dados-panel__footer {
+  position: absolute;
+  left: 23px;
+  right: 23px;
+  bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dados-panel__sair {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #d23b3b;
+}
+.dados-panel__sair-icon {
+  width: 22px;
+  height: 22px;
+}
+.dados-panel__sair:hover {
+  color: #b51f1f;
+}
+.dados-panel__edit {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: transparent;
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.dados-panel__edit:hover {
+  background: #f0e9fb;
+  color: var(--color-primary);
+}
+.dados-panel__edit svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .dados-panel__card {
+    min-height: 0;
+  }
+  .dados-panel__footer {
+    position: static;
+    margin-top: 24px;
+  }
+}

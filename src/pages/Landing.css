@@ -1,0 +1,59 @@
+.landing-header {
+  padding: 14px 20px 0;
+}
+.landing-header__bar {
+  background: var(--gradient-brand);
+  backdrop-filter: blur(2px);
+  box-shadow: var(--shadow-elev);
+  border-radius: var(--radius);
+  height: 118px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 52px;
+}
+.landing-header__actions {
+  display: flex;
+  gap: 24px;
+}
+
+/* Botões pílula do header */
+.btn-pill {
+  height: 61px;
+  min-width: 130px;
+  padding: 0 24px;
+  border-radius: var(--radius);
+  font-size: 25px;
+  font-weight: 600;
+  box-shadow: var(--shadow-elev);
+  transition: opacity 0.15s ease, transform 0.08s ease;
+}
+.btn-pill:active {
+  transform: translateY(1px);
+}
+.btn-pill--cadastrar {
+  background: #fafafa;
+  color: var(--color-primary);
+}
+.btn-pill--acessar {
+  background: #f8f8f8;
+  color: var(--color-text);
+}
+.btn-pill:hover {
+  opacity: 0.9;
+}
+
+.landing-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.landing-logo {
+  width: 572px;
+  height: 572px;
+  max-width: 70vw;
+  max-height: 70vh;
+  object-fit: contain;
+}

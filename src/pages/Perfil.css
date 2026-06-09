@@ -1,0 +1,85 @@
+/* Barra superior: select + filtros na mesma linha */
+.secao-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 30px;
+  height: 47px;
+  flex-wrap: wrap;
+}
+
+/* Select de seção (Seus itens / Minhas trocas) — Rectangle 12 */
+.secao-select {
+  position: relative;
+  display: inline-block;
+}
+.secao-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 47px;
+  min-width: 240px;
+  padding: 0 44px 0 16px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-strong);
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.secao-select select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.secao-select__chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-60%);
+  font-size: 22px;
+  pointer-events: none;
+  color: var(--color-text-strong);
+}
+
+/* Filtros Finalizado / Em espera — Rectangle 13 e 14 */
+.troca-chips {
+  display: flex;
+  gap: 16px;
+}
+.chip {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: #f1f1f1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-strong);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.chip:hover {
+  background: #e6e6e6;
+}
+.chip--finalizado {
+  background: #2ecc71;
+  color: #fff;
+}
+.chip--espera {
+  background: #f0c14b;
+  color: #3a2c00;
+}
+
+.grid-itens {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px 38px;
+}
+@media (max-width: 1200px) {
+  .grid-itens {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .grid-itens {
+    grid-template-columns: 1fr;
+  }
+}
