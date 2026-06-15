@@ -94,25 +94,6 @@
   box-shadow: 0 0 0 2px rgba(115, 44, 213, 0.3);
 }
 
-/* Categoria e Condição */
-.campo-categoria,
-.campo-condicao {
-  width: 100%;
-  height: 39px;
-  border: none;
-  border-radius: var(--radius);
-  padding: 0 18px;
-  font-size: 16px;
-  background: #d9d9d9;
-  color: var(--color-text-strong);
-  outline: none;
-  cursor: pointer;
-}
-.campo-categoria:focus,
-.campo-condicao:focus {
-  box-shadow: 0 0 0 2px rgba(115, 44, 213, 0.3);
-}
-
 /* Termos de Troca */
 .campo-termos {
   width: 100%;

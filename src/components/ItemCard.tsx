@@ -76,15 +76,6 @@ export function ItemCard({
               >
                 <TrashIcon />
               </button>
-              <button
-                type="button"
-                className="icon-link"
-                title="Editar"
-                aria-label="Editar item"
-                onClick={() => onEdit?.(item)}
-              >
-                <PencilIcon />
-              </button>
             </div>
           ) : null}
         </div>

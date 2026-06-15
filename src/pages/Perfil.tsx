@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardLayout } from '../components/DashboardLayout'
 import { ItemCard } from '../components/ItemCard'
+import { ItemModal } from '../components/ItemModal'
 import { useApp } from '../context/AppContext'
 import type { Item, TrocaStatus } from '../types'
 import './Perfil.css'
@@ -15,10 +16,11 @@ type FiltroTroca = 'todas' | TrocaStatus
  * Em "Minhas trocas" aparecem os filtros Finalizado / Em espera ao lado do select.
  */
 export function Perfil() {
-  const { meusItens, trocas, removeItem, itensCurtidos, removerFavorito, solicitarTroca } = useApp()
+  const { meusItens, trocas, removeItem, itensCurtidos, removerFavorito, solicitarTroca, ehFavorito } = useApp()
   const navigate = useNavigate()
   const [secao, setSecao] = useState<Secao>('itens')
   const [filtro, setFiltro] = useState<FiltroTroca>('todas')
+  const [itemExpandido, setItemExpandido] = useState<Item | null>(null)
 
   const trocasFiltradas = useMemo(() => {
     if (filtro === 'todas') return trocas
@@ -88,30 +90,53 @@ export function Perfil() {
       <div className="grid grid-itens">
         {secao === 'itens'
           ? meusItens.map((item) => (
-              <ItemCard
+              <div
                 key={item.id}
-                item={item}
-                variant="meu"
-                showOwnerActions
-                onEdit={() => navigate('/cadastrar-item')}
-                onDelete={(i) => removeItem(i.id)}
-              />
+                onClick={() => setItemExpandido(item)}
+                style={{ cursor: 'pointer' }}
+              >
+                <ItemCard
+                  item={item}
+                  variant="meu"
+                  showOwnerActions
+                  onDelete={(i) => removeItem(i.id)}
+                />
+              </div>
             ))
           : secao === 'trocas'
           ? trocasComoItens.map((item) => (
-              <ItemCard key={item.id} item={item} variant="meu" showOwnerActions />
+              <div
+                key={item.id}
+                onClick={() => setItemExpandido(item)}
+                style={{ cursor: 'pointer' }}
+              >
+                <ItemCard item={item} variant="meu" showOwnerActions />
+              </div>
             ))
           : itensCurtidos.map((item) => (
-              <ItemCard
+              <div
                 key={item.id}
-                item={item}
-                variant="catalogo"
-                onAction={handleSolicitar}
-                onFavorite={handleRemoverCurtido}
-                isFavorite={true}
-              />
+                onClick={() => setItemExpandido(item)}
+                style={{ cursor: 'pointer' }}
+              >
+                <ItemCard
+                  item={item}
+                  variant="catalogo"
+                  onAction={handleSolicitar}
+                  onFavorite={handleRemoverCurtido}
+                  isFavorite={true}
+                />
+              </div>
             ))}
       </div>
+
+      <ItemModal
+        item={itemExpandido}
+        onClose={() => setItemExpandido(null)}
+        onAction={handleSolicitar}
+        onFavorite={handleRemoverCurtido}
+        isFavorite={itemExpandido ? ehFavorito(itemExpandido.id) : false}
+      />
     </DashboardLayout>
   )
 }

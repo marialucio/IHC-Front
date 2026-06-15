@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { Item } from '../types'
-import { SwapIcon, HeartIcon, ShareIcon, FlagIcon } from './icons'
+import { SwapIcon, HeartIcon } from './icons'
 import './ItemModal.css'
 
 interface ItemModalProps {
@@ -108,20 +108,6 @@ export function ItemModal({ item, onClose, onAction, onFavorite, isFavorite }: I
                 onClick={() => onFavorite?.(item)}
               >
                 <HeartIcon />
-              </button>
-              <button
-                type="button"
-                className="item-modal__action-btn item-modal__action-btn--secondary"
-                title="Compartilhar"
-              >
-                <ShareIcon />
-              </button>
-              <button
-                type="button"
-                className="item-modal__action-btn item-modal__action-btn--secondary"
-                title="Denunciar"
-              >
-                <FlagIcon />
               </button>
             </div>
           </div>

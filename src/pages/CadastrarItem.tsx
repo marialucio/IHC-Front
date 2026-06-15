@@ -19,8 +19,6 @@ export function CadastrarItem() {
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
   const [localizacao, setLocalizacao] = useState('')
-  const [categoria, setCategoria] = useState('Roupas')
-  const [condicao, setCondicao] = useState('como_novo')
   const [termosTroca, setTermosTroca] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
 
@@ -39,8 +37,8 @@ export function CadastrarItem() {
       titulo,
       descricao,
       imagem: preview ?? itemImg,
-      categoria,
-      condicao: condicao as 'novo' | 'como_novo' | 'bom' | 'usado',
+      categoria: 'Geral',
+      condicao: 'bom' as 'novo' | 'como_novo' | 'bom' | 'usado',
       localizacao,
       termosTroca,
     })
@@ -100,31 +98,6 @@ export function CadastrarItem() {
           placeholder="Localização (ex: São Paulo, SP)"
           required
         />
-
-        {/* Categoria */}
-        <select
-          className="campo-categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-        >
-          <option value="Roupas">Roupas</option>
-          <option value="Eletrônicos">Eletrônicos</option>
-          <option value="Livros">Livros</option>
-          <option value="Móveis">Móveis</option>
-          <option value="Acessórios">Acessórios</option>
-          <option value="Utensílios">Utensílios</option>
-        </select>
-
-        {/* Condição */}
-        <select
-          className="campo-condicao"
-          value={condicao}
-          onChange={(e) => setCondicao(e.target.value)}
-        >
-          <option value="novo">Novo</option>
-          <option value="como_novo">Como Novo</option>
-          <option value="usado">Usado</option>
-        </select>
 
         {/* Termos de Troca */}
         <textarea
