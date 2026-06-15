@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext'
 import type { Item, TrocaStatus } from '../types'
 import './Perfil.css'
 
-type Secao = 'itens' | 'trocas'
+type Secao = 'itens' | 'trocas' | 'curtidos'
 type FiltroTroca = 'todas' | TrocaStatus
 
 /**
@@ -15,7 +15,7 @@ type FiltroTroca = 'todas' | TrocaStatus
  * Em "Minhas trocas" aparecem os filtros Finalizado / Em espera ao lado do select.
  */
 export function Perfil() {
-  const { meusItens, trocas, removeItem } = useApp()
+  const { meusItens, trocas, removeItem, itensCurtidos, removerFavorito, solicitarTroca } = useApp()
   const navigate = useNavigate()
   const [secao, setSecao] = useState<Secao>('itens')
   const [filtro, setFiltro] = useState<FiltroTroca>('todas')
@@ -34,6 +34,14 @@ export function Perfil() {
     dono: '',
   }))
 
+  function handleSolicitar(item: Item) {
+    solicitarTroca(item)
+  }
+
+  function handleRemoverCurtido(item: Item) {
+    removerFavorito(item.id)
+  }
+
   return (
     <DashboardLayout>
       <div className="secao-toolbar">
@@ -48,6 +56,7 @@ export function Perfil() {
           >
             <option value="itens">Seus itens</option>
             <option value="trocas">Minhas trocas</option>
+            <option value="curtidos">Itens curtidos</option>
           </select>
           <span className="secao-select__chevron" aria-hidden>
             ⌄
@@ -88,8 +97,19 @@ export function Perfil() {
                 onDelete={(i) => removeItem(i.id)}
               />
             ))
-          : trocasComoItens.map((item) => (
+          : secao === 'trocas'
+          ? trocasComoItens.map((item) => (
               <ItemCard key={item.id} item={item} variant="meu" showOwnerActions />
+            ))
+          : itensCurtidos.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                variant="catalogo"
+                onAction={handleSolicitar}
+                onFavorite={handleRemoverCurtido}
+                isFavorite={true}
+              />
             ))}
       </div>
     </DashboardLayout>

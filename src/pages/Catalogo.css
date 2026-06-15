@@ -36,3 +36,14 @@
   font-weight: 600;
   margin-bottom: 22px;
 }
+
+.item-card-wrapper {
+  cursor: pointer;
+  outline: none;
+  border-radius: var(--radius);
+}
+
+.item-card-wrapper:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

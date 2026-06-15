@@ -18,6 +18,10 @@ export function CadastrarItem() {
 
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
+  const [localizacao, setLocalizacao] = useState('')
+  const [categoria, setCategoria] = useState('Roupas')
+  const [condicao, setCondicao] = useState('como_novo')
+  const [termosTroca, setTermosTroca] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
@@ -27,7 +31,19 @@ export function CadastrarItem() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    addItem({ titulo, descricao, imagem: preview ?? itemImg })
+    if (!localizacao.trim()) {
+      alert('Por favor, preencha a localização.')
+      return
+    }
+    addItem({
+      titulo,
+      descricao,
+      imagem: preview ?? itemImg,
+      categoria,
+      condicao: condicao as 'novo' | 'como_novo' | 'bom' | 'usado',
+      localizacao,
+      termosTroca,
+    })
     navigate('/perfil')
   }
 
@@ -74,6 +90,49 @@ export function CadastrarItem() {
           onChange={(e) => setDescricao(e.target.value)}
           placeholder="Descrição"
           required
+        />
+
+        {/* Localização */}
+        <input
+          className="campo-localizacao"
+          value={localizacao}
+          onChange={(e) => setLocalizacao(e.target.value)}
+          placeholder="Localização (ex: São Paulo, SP)"
+          required
+        />
+
+        {/* Categoria */}
+        <select
+          className="campo-categoria"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+        >
+          <option value="Roupas">Roupas</option>
+          <option value="Eletrônicos">Eletrônicos</option>
+          <option value="Livros">Livros</option>
+          <option value="Móveis">Móveis</option>
+          <option value="Acessórios">Acessórios</option>
+          <option value="Utensílios">Utensílios</option>
+        </select>
+
+        {/* Condição */}
+        <select
+          className="campo-condicao"
+          value={condicao}
+          onChange={(e) => setCondicao(e.target.value)}
+        >
+          <option value="novo">Novo</option>
+          <option value="como_novo">Como Novo</option>
+          <option value="usado">Usado</option>
+        </select>
+
+        {/* Termos de Troca */}
+        <textarea
+          className="campo-termos"
+          rows={2}
+          value={termosTroca}
+          onChange={(e) => setTermosTroca(e.target.value)}
+          placeholder="O que você quer em troca? (opcional)"
         />
 
         {/* Submit acionado via Enter / fora da tela conforme protótipo */}

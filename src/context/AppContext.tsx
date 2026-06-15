@@ -13,12 +13,16 @@ interface AppState {
   catalogo: Item[]
   meusItens: Item[]
   trocas: Troca[]
+  itensCurtidos: Item[]
   login: (email: string, senha: string) => boolean
   register: (user: User) => void
   logout: () => void
   addItem: (item: Omit<Item, 'id' | 'dono'>) => void
   removeItem: (id: string) => void
   solicitarTroca: (item: Item) => void
+  adicionarFavorito: (item: Item) => void
+  removerFavorito: (id: string) => void
+  ehFavorito: (id: string) => boolean
 }
 
 const AppContext = createContext<AppState | undefined>(undefined)
@@ -30,6 +34,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [catalogo] = useState<Item[]>(seedCatalogo)
   const [meusItens, setMeusItens] = useState<Item[]>(seedMeusItens)
   const [trocas, setTrocas] = useState<Troca[]>(seedTrocas)
+  const [itensCurtidos, setItensCurtidos] = useState<Item[]>([])
 
   const value = useMemo<AppState>(
     () => ({
@@ -38,6 +43,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       catalogo,
       meusItens,
       trocas,
+      itensCurtidos,
       login: (email, senha) => {
         if (email === registeredUser.email && senha === registeredUser.senha) {
           setUser(registeredUser)
@@ -55,6 +61,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ...item,
           id: `i${Date.now()}`,
           dono: user?.apelido ?? registeredUser.apelido,
+          dataCriacao: new Date().toISOString().split('T')[0],
+          avaliacaoDono: 4,
+          numeroTrocas: 0,
         }
         setMeusItens((prev) => [novo, ...prev])
       },
@@ -73,8 +82,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ...prev,
         ])
       },
+      adicionarFavorito: (item) => {
+        setItensCurtidos((prev) => {
+          if (prev.some((i) => i.id === item.id)) return prev
+          return [item, ...prev]
+        })
+      },
+      removerFavorito: (id) => {
+        setItensCurtidos((prev) => prev.filter((i) => i.id !== id))
+      },
+      ehFavorito: (id) => {
+        return itensCurtidos.some((i) => i.id === id)
+      },
     }),
-    [user, registeredUser, catalogo, meusItens, trocas],
+    [user, registeredUser, catalogo, meusItens, trocas, itensCurtidos],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

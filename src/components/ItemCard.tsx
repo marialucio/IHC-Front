@@ -12,6 +12,7 @@ interface ItemCardProps {
   onEdit?: (item: Item) => void
   onDelete?: (item: Item) => void
   onFavorite?: (item: Item) => void
+  isFavorite?: boolean
 }
 
 export function ItemCard({
@@ -22,6 +23,7 @@ export function ItemCard({
   onEdit,
   onDelete,
   onFavorite,
+  isFavorite = false,
 }: ItemCardProps) {
   return (
     <article className="item-card">
@@ -38,10 +40,13 @@ export function ItemCard({
               <div className="item-card__icons">
                 <button
                   type="button"
-                  className="icon-link"
-                  title="Favoritar"
-                  aria-label="Favoritar item"
-                  onClick={() => onFavorite?.(item)}
+                  className={`icon-link ${isFavorite ? 'icon-link--favorited' : ''}`}
+                  title={isFavorite ? 'Remover dos favoritos' : 'Favoritar'}
+                  aria-label={isFavorite ? 'Remover dos favoritos' : 'Favoritar item'}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onFavorite?.(item)
+                  }}
                 >
                   <HeartIcon />
                 </button>
@@ -50,7 +55,10 @@ export function ItemCard({
                   className="icon-link"
                   title="Solicitar troca"
                   aria-label="Solicitar troca"
-                  onClick={() => onAction?.(item)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onAction?.(item)
+                  }}
                 >
                   <SwapIcon />
                 </button>
