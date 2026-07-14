@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { GlobalAlert } from './GlobalAlert'
 import { Footer } from './Layout'
 import './AuthLayout.css'
 
@@ -10,6 +11,7 @@ import './AuthLayout.css'
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell">
+      <GlobalAlert />
       <div className="auth-stage">
         <div className="auth-fundo">
           <div className="auth-fundo__inner">{children}</div>

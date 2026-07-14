@@ -1,47 +1,60 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { Cadastro } from './pages/Cadastro'
 import { Catalogo } from './pages/Catalogo'
+import { MeusItens } from './pages/MeusItens'
 import { Perfil } from './pages/Perfil'
-import { CadastrarItem } from './pages/CadastrarItem'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { GlobalConfirm } from './components/GlobalConfirm'
+import { useApp } from './context/AppContext'
 
 export default function App() {
+  const location = useLocation()
+  const { hideAlert } = useApp()
+
+  useEffect(() => {
+    hideAlert()
+  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <Routes>
-      {/* Públicas */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/cadastro" element={<Cadastro />} />
+    <>
+      <GlobalConfirm />
+      <Routes>
+        {/* Públicas */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
 
-      {/* Autenticadas */}
-      <Route
-        path="/catalogo"
-        element={
-          <ProtectedRoute>
-            <Catalogo />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/perfil"
-        element={
-          <ProtectedRoute>
-            <Perfil />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/cadastrar-item"
-        element={
-          <ProtectedRoute>
-            <CadastrarItem />
-          </ProtectedRoute>
-        }
-      />
+        {/* Autenticadas */}
+        <Route
+          path="/catalogo"
+          element={
+            <ProtectedRoute>
+              <Catalogo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <Perfil />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/meus-itens"
+          element={
+            <ProtectedRoute>
+              <MeusItens />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }

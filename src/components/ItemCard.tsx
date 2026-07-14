@@ -9,8 +9,8 @@ interface ItemCardProps {
   /** catalogo = ícones + dono; meu = ícones excluir/editar. */
   variant?: 'catalogo' | 'meu'
   showOwnerActions?: boolean
-  onEdit?: (item: Item) => void
   onDelete?: (item: Item) => void
+  onEdit?: (item: Item) => void
   onFavorite?: (item: Item) => void
   isFavorite?: boolean
 }
@@ -20,15 +20,17 @@ export function ItemCard({
   onAction,
   variant = 'catalogo',
   showOwnerActions = false,
-  onEdit,
   onDelete,
+  onEdit,
   onFavorite,
   isFavorite = false,
 }: ItemCardProps) {
   return (
     <article className="item-card">
       <div className="item-card__image">
-        {item.imagem ? <img src={item.imagem} alt={item.titulo} /> : null}
+        {item.imagem ? (
+          <img src={item.imagem} alt={item.titulo} style={{ objectPosition: item.imagemPosicao ?? 'center center' }} />
+        ) : null}
       </div>
       <div className="item-card__body">
         <h3 className="item-card__title">{item.titulo}</h3>
@@ -48,7 +50,7 @@ export function ItemCard({
                     onFavorite?.(item)
                   }}
                 >
-                  <HeartIcon />
+                  <HeartIcon fill={isFavorite ? 'currentColor' : 'none'} />
                 </button>
                 <button
                   type="button"
@@ -69,10 +71,25 @@ export function ItemCard({
             <div className="item-card__icons item-card__icons--right">
               <button
                 type="button"
+                className="icon-link"
+                title="Editar"
+                aria-label="Editar item"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit?.(item)
+                }}
+              >
+                <PencilIcon />
+              </button>
+              <button
+                type="button"
                 className="icon-link icon-link--danger"
                 title="Excluir"
                 aria-label="Excluir item"
-                onClick={() => onDelete?.(item)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete?.(item)
+                }}
               >
                 <TrashIcon />
               </button>

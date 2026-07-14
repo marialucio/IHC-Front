@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useApp } from '../context/AppContext'
+import { GlobalAlert } from './GlobalAlert'
 import './Layout.css'
 
 export function Header() {
@@ -16,11 +17,11 @@ export function Header() {
 
         {isAuthenticated ? (
           <nav className="header-nav">
-            <NavLink to="/cadastrar-item" className="header-link">
-              Cadastrar item
-            </NavLink>
             <NavLink to="/catalogo" className="header-link">
               Catálogo
+            </NavLink>
+            <NavLink to="/meus-itens" className="header-link">
+              Meus itens
             </NavLink>
             <NavLink to="/perfil" className="header-link">
               Perfil
@@ -42,12 +43,13 @@ export function Header() {
 }
 
 export function Footer() {
-  return <footer className="footer" />
+  return <footer className="footer">&copy; Trocarium - Todos os direitos reservados</footer>
 }
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell">
+      <GlobalAlert />
       <Header />
       {children}
       <Footer />

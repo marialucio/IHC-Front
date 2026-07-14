@@ -6,11 +6,14 @@ export interface User {
   senha: string
 }
 
+export type ImagePosition = string
+
 export interface Item {
   id: string
   titulo: string
   descricao: string
   imagem: string
+  imagemPosicao?: ImagePosition
   dono: string // apelido do dono
   categoria: string
   condicao: 'novo' | 'como_novo' | 'bom' | 'usado'

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Item, Troca, User } from '../types'
 import {
   seedCatalogo,
@@ -7,9 +7,34 @@ import {
   seedUser,
 } from '../data/seed'
 
+export type AlertType = 'success' | 'error' | 'warning' | 'loading'
+
+export interface AppAlert {
+  id: number
+  type: AlertType
+  message: string
+}
+
+export interface ConfirmOptions {
+  title?: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  tone?: 'default' | 'danger'
+}
+
+interface ConfirmDialogState {
+  title: string
+  message: string
+  confirmText: string
+  cancelText: string
+  tone: 'default' | 'danger'
+}
+
 interface AppState {
   user: User | null
   isAuthenticated: boolean
+  alert: AppAlert | null
   catalogo: Item[]
   meusItens: Item[]
   trocas: Troca[]
@@ -17,29 +42,60 @@ interface AppState {
   login: (email: string, senha: string) => boolean
   register: (user: User) => void
   logout: () => void
-  addItem: (item: Omit<Item, 'id' | 'dono'>) => void
+  updateUser: (user: User) => void
+  addItem: (item: Omit<Item, 'id' | 'dono' | 'dataCriacao' | 'avaliacaoDono' | 'numeroTrocas'>) => void
+  updateItem: (id: string, item: Omit<Item, 'id' | 'dono' | 'dataCriacao' | 'avaliacaoDono' | 'numeroTrocas'>) => void
   removeItem: (id: string) => void
   solicitarTroca: (item: Item) => void
   adicionarFavorito: (item: Item) => void
   removerFavorito: (id: string) => void
   ehFavorito: (id: string) => boolean
+  showAlert: (type: AlertType, message: string) => void
+  hideAlert: () => void
+  confirm: (options: ConfirmOptions) => Promise<boolean>
+  confirmDialog: ConfirmDialogState | null
+  resolveConfirm: (confirmed: boolean) => void
 }
 
 const AppContext = createContext<AppState | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const AUTH_STORAGE_KEY = 'trocasusp-auth-user'
+
   // Usuário cadastrado conhecido (semente). Começa deslogado na landing.
   const [registeredUser, setRegisteredUser] = useState<User>(seedUser)
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = window.localStorage.getItem(AUTH_STORAGE_KEY)
+    if (!stored) return null
+
+    try {
+      return JSON.parse(stored) as User
+    } catch {
+      return null
+    }
+  })
   const [catalogo] = useState<Item[]>(seedCatalogo)
   const [meusItens, setMeusItens] = useState<Item[]>(seedMeusItens)
   const [trocas, setTrocas] = useState<Troca[]>(seedTrocas)
   const [itensCurtidos, setItensCurtidos] = useState<Item[]>([])
+  const [alert, setAlert] = useState<AppAlert | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const confirmResolverRef = useRef<((confirmed: boolean) => void) | null>(null)
+
+  useEffect(() => {
+    if (user) {
+      window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user))
+      return
+    }
+
+    window.localStorage.removeItem(AUTH_STORAGE_KEY)
+  }, [user])
 
   const value = useMemo<AppState>(
     () => ({
       user,
       isAuthenticated: user !== null,
+      alert,
       catalogo,
       meusItens,
       trocas,
@@ -56,6 +112,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setUser(novo)
       },
       logout: () => setUser(null),
+      updateUser: (novo) => {
+        setRegisteredUser(novo)
+        setUser(novo)
+      },
       addItem: (item) => {
         const novo: Item = {
           ...item,
@@ -66,6 +126,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           numeroTrocas: 0,
         }
         setMeusItens((prev) => [novo, ...prev])
+      },
+      updateItem: (id, item) => {
+        setMeusItens((prev) =>
+          prev.map((current) =>
+            current.id === id
+              ? {
+                  ...current,
+                  ...item,
+                }
+              : current,
+          ),
+        )
       },
       removeItem: (id) => {
         setMeusItens((prev) => prev.filter((i) => i.id !== id))
@@ -94,8 +166,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ehFavorito: (id) => {
         return itensCurtidos.some((i) => i.id === id)
       },
+      showAlert: (type, message) => {
+        setAlert({
+          id: Date.now(),
+          type,
+          message,
+        })
+      },
+      hideAlert: () => {
+        setAlert(null)
+      },
+      confirm: (options) => {
+        const normalized: ConfirmDialogState = {
+          title: options.title ?? 'Confirmar deleção',
+          message: options.message,
+          confirmText: options.confirmText ?? 'Deletar',
+          cancelText: options.cancelText ?? 'Cancelar',
+          tone: options.tone ?? 'danger',
+        }
+
+        setConfirmDialog(normalized)
+        return new Promise<boolean>((resolve) => {
+          confirmResolverRef.current = resolve
+        })
+      },
+      confirmDialog,
+      resolveConfirm: (confirmed) => {
+        confirmResolverRef.current?.(confirmed)
+        confirmResolverRef.current = null
+        setConfirmDialog(null)
+      },
     }),
-    [user, registeredUser, catalogo, meusItens, trocas, itensCurtidos],
+    [user, alert, registeredUser, catalogo, meusItens, trocas, itensCurtidos, confirmDialog],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

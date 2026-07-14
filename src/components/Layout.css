@@ -31,20 +31,31 @@
   font-weight: 600;
   padding: 4px 2px;
   border-bottom: 3px solid transparent;
-  transition: border-color 0.15s ease, opacity 0.15s ease;
 }
 .header-link:hover {
   opacity: 0.7;
 }
 .header-link.active {
-  border-bottom-color: var(--color-text-strong);
+  border-bottom-color: var(--color-primary);
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .footer {
-  margin: 0 20px 20px;
-  height: 43px;
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: 10px;
+  height: 38px;
   background: var(--gradient-brand);
   backdrop-filter: blur(2px);
   box-shadow: var(--shadow-elev);
   border-radius: var(--radius);
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
 }
