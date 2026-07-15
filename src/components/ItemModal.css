@@ -259,6 +259,42 @@
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
+.item-modal__action-btn--disabled,
+.item-modal__action-btn--disabled:hover {
+  background: #9ca3af;
+  color: #f9fafb;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.item-modal__tooltip-wrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 140px;
+}
+
+.item-modal__tooltip-wrapper[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  width: 260px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 12;
+  pointer-events: none;
+}
+
 .item-modal__action-btn--secondary {
   background: #f3f4f6;
   color: #374151;

@@ -6,6 +6,8 @@ interface ItemCardProps {
   item: Item
   /** Ação primária (catálogo: solicitar troca). */
   onAction?: (item: Item) => void
+  isTradeDisabled?: boolean
+  tradeDisabledTooltip?: string
   /** catalogo = ícones + dono; meu = ícones excluir/editar. */
   variant?: 'catalogo' | 'meu'
   showOwnerActions?: boolean
@@ -18,6 +20,8 @@ interface ItemCardProps {
 export function ItemCard({
   item,
   onAction,
+  isTradeDisabled = false,
+  tradeDisabledTooltip,
   variant = 'catalogo',
   showOwnerActions = false,
   onDelete,
@@ -52,18 +56,26 @@ export function ItemCard({
                 >
                   <HeartIcon fill={isFavorite ? 'currentColor' : 'none'} />
                 </button>
-                <button
-                  type="button"
-                  className="icon-link"
-                  title="Solicitar troca"
-                  aria-label="Solicitar troca"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onAction?.(item)
-                  }}
+                <span
+                  className="icon-link-tooltip"
+                  data-tooltip={isTradeDisabled ? tradeDisabledTooltip : undefined}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <SwapIcon />
-                </button>
+                  <button
+                    type="button"
+                    className={`icon-link ${isTradeDisabled ? 'icon-link--disabled' : ''}`}
+                    title={isTradeDisabled ? undefined : 'Solicitar troca'}
+                    aria-label={isTradeDisabled ? 'Troca já solicitada para este item' : 'Solicitar troca'}
+                    disabled={isTradeDisabled}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isTradeDisabled) return
+                      onAction?.(item)
+                    }}
+                  >
+                    <SwapIcon />
+                  </button>
+                </span>
               </div>
               {item.dono && <span className="item-card__owner">{item.dono}</span>}
             </>

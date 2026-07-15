@@ -20,7 +20,7 @@ export interface ConfirmOptions {
   message: string
   confirmText?: string
   cancelText?: string
-  tone?: 'default' | 'danger'
+  tone?: 'default' | 'danger' | 'success'
 }
 
 interface ConfirmDialogState {
@@ -28,7 +28,7 @@ interface ConfirmDialogState {
   message: string
   confirmText: string
   cancelText: string
-  tone: 'default' | 'danger'
+  tone: 'default' | 'danger' | 'success'
 }
 
 interface AppState {
@@ -46,7 +46,10 @@ interface AppState {
   addItem: (item: Omit<Item, 'id' | 'dono' | 'dataCriacao' | 'avaliacaoDono' | 'numeroTrocas'>) => void
   updateItem: (id: string, item: Omit<Item, 'id' | 'dono' | 'dataCriacao' | 'avaliacaoDono' | 'numeroTrocas'>) => void
   removeItem: (id: string) => void
-  solicitarTroca: (item: Item) => void
+  solicitarTroca: (item: Item, meuItemSelecionado: Item) => void
+  aceitarSolicitacao: (id: string) => void
+  recusarSolicitacao: (id: string) => void
+  cancelarSolicitacao: (id: string) => void
   adicionarFavorito: (item: Item) => void
   removerFavorito: (id: string) => void
   ehFavorito: (id: string) => boolean
@@ -142,17 +145,84 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeItem: (id) => {
         setMeusItens((prev) => prev.filter((i) => i.id !== id))
       },
-      solicitarTroca: (item) => {
+      solicitarTroca: (item, meuItemSelecionado) => {
+        const hoje = new Date().toISOString().split('T')[0]
+        const itemMeu = meuItemSelecionado.titulo
+
         setTrocas((prev) => [
           {
             id: `t${Date.now()}`,
-            itemTitulo: item.titulo,
-            itemImagem: item.imagem,
-            descricao: item.descricao,
-            status: 'em_espera',
+            itemParaId: item.id,
+            itemDe: itemMeu,
+            itemPara: item.titulo,
+            meuItem: {
+              nome: itemMeu,
+              descricao: meuItemSelecionado.descricao,
+              condicao: meuItemSelecionado.condicao,
+              localizacao: meuItemSelecionado.localizacao,
+              imagem: meuItemSelecionado.imagem,
+            },
+            itemFulano: {
+              nome: item.titulo,
+              descricao: item.descricao,
+              condicao: item.condicao,
+              localizacao: item.localizacao,
+              imagem: item.imagem,
+            },
+            status: 'pendente',
+            dataSolicitacao: hoje,
+            contraparte: item.dono,
+            direcao: 'de_mim',
           },
           ...prev,
         ])
+      },
+      aceitarSolicitacao: (id) => {
+        const hoje = new Date().toISOString().split('T')[0]
+        setTrocas((prev) =>
+          prev.map((troca) =>
+            troca.id === id
+              ? {
+                  ...troca,
+                  status: 'aceita',
+                  dataRespostaCancelamento: hoje,
+                  contatoContraparte:
+                    troca.contatoContraparte ?? {
+                      telefone: '(11) 90000-0000',
+                      email: `${troca.contraparte.toLowerCase().replace(/\s+/g, '.')}@email.com`,
+                    },
+                }
+              : troca,
+          ),
+        )
+      },
+      recusarSolicitacao: (id) => {
+        const hoje = new Date().toISOString().split('T')[0]
+        setTrocas((prev) =>
+          prev.map((troca) =>
+            troca.id === id
+              ? {
+                  ...troca,
+                  status: 'recusada',
+                  dataRespostaCancelamento: hoje,
+                }
+              : troca,
+          ),
+        )
+      },
+      cancelarSolicitacao: (id) => {
+        const hoje = new Date().toISOString().split('T')[0]
+        setTrocas((prev) =>
+          prev.map((troca) =>
+            troca.id === id
+              ? {
+                  ...troca,
+                  status: 'cancelada',
+                  dataRespostaCancelamento: hoje,
+                }
+              : troca,
+          ),
+        )
       },
       adicionarFavorito: (item) => {
         setItensCurtidos((prev) => {
@@ -181,7 +251,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           title: options.title ?? 'Confirmar deleção',
           message: options.message,
           confirmText: options.confirmText ?? 'Deletar',
-          cancelText: options.cancelText ?? 'Cancelar',
+          cancelText: options.cancelText ?? 'Voltar',
           tone: options.tone ?? 'danger',
         }
 

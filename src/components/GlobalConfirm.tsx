@@ -34,7 +34,13 @@ export function GlobalConfirm() {
           </button>
           <button
             type="button"
-            className={`global-confirm__btn ${confirmDialog.tone === 'danger' ? 'global-confirm__btn--danger' : 'global-confirm__btn--confirm'}`}
+            className={`global-confirm__btn ${
+              confirmDialog.tone === 'danger'
+                ? 'global-confirm__btn--danger'
+                : confirmDialog.tone === 'success'
+                  ? 'global-confirm__btn--success'
+                  : 'global-confirm__btn--confirm'
+            }`}
             onClick={() => resolveConfirm(true)}
           >
             {confirmDialog.confirmText}

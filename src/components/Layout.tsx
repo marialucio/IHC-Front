@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useApp } from '../context/AppContext'
 import { GlobalAlert } from './GlobalAlert'
+import { CatalogIcon, MyItemsIcon, ProfileIcon, SwapIcon } from './icons'
 import './Layout.css'
 
 export function Header() {
@@ -13,18 +14,27 @@ export function Header() {
       <div className="header-inner">
         <NavLink to={isAuthenticated ? '/catalogo' : '/'} className="header-logo">
           <img src="/assets/logo.png" alt="Trocas USP" />
+          <span className="header-logo__text">Trocas USP</span>
         </NavLink>
 
         {isAuthenticated ? (
           <nav className="header-nav">
             <NavLink to="/catalogo" className="header-link">
-              Catálogo
+              <CatalogIcon className="header-link__icon" />
+              <span className="header-link__label">Catálogo</span>
             </NavLink>
+            <span className="header-divider" aria-hidden="true" />
             <NavLink to="/meus-itens" className="header-link">
-              Meus itens
+              <MyItemsIcon className="header-link__icon" />
+              <span className="header-link__label">Meus itens</span>
+            </NavLink>
+            <NavLink to="/solicitacoes" className="header-link">
+              <SwapIcon className="header-link__icon" />
+              <span className="header-link__label">Solicitações</span>
             </NavLink>
             <NavLink to="/perfil" className="header-link">
-              Perfil
+              <ProfileIcon className="header-link__icon" />
+              <span className="header-link__label">Perfil</span>
             </NavLink>
           </nav>
         ) : (
@@ -43,7 +53,7 @@ export function Header() {
 }
 
 export function Footer() {
-  return <footer className="footer">&copy; Trocarium - Todos os direitos reservados</footer>
+  return <footer className="footer">&copy; Trocas USP - Todos os direitos reservados</footer>
 }
 
 export function Layout({ children }: { children: ReactNode }) {

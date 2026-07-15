@@ -2,7 +2,7 @@
   background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -16,6 +16,7 @@
   height: 218px;
   width: 100%;
   overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
   background: #bdbdbd;
 }
 
@@ -88,6 +89,41 @@
 }
 .icon-link--danger:hover {
   color: #b51f1f;
+}
+
+.icon-link--disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.icon-link--disabled:hover {
+  color: #9ca3af;
+  transform: none;
+}
+
+.icon-link-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-link-tooltip[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  width: 220px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
 }
 
 @keyframes favoriteHeart {

@@ -7,6 +7,8 @@ interface ItemModalProps {
   item: Item | null
   onClose: () => void
   onAction?: (item: Item) => void
+  isTradeDisabled?: boolean
+  tradeDisabledTooltip?: string
   onFavorite?: (item: Item) => void
   isFavorite?: boolean
   variant?: 'catalog' | 'owner'
@@ -27,6 +29,8 @@ export function ItemModal({
   item,
   onClose,
   onAction,
+  isTradeDisabled = false,
+  tradeDisabledTooltip,
   onFavorite,
   isFavorite,
   variant = 'catalog',
@@ -192,17 +196,25 @@ export function ItemModal({
             <div className="item-modal__actions">
               {variant === 'catalog' ? (
                 <>
-                  <button
-                    type="button"
-                    className="item-modal__action-btn item-modal__action-btn--primary"
-                    onClick={() => {
-                      onAction?.(item)
-                      onClose()
-                    }}
+                  <span
+                    className="item-modal__tooltip-wrapper"
+                    data-tooltip={isTradeDisabled ? tradeDisabledTooltip : undefined}
                   >
-                    <SwapIcon />
-                    Solicitar Troca
-                  </button>
+                    <button
+                      type="button"
+                      className={`item-modal__action-btn item-modal__action-btn--primary ${isTradeDisabled ? 'item-modal__action-btn--disabled' : ''}`}
+                      disabled={isTradeDisabled}
+                      aria-label={isTradeDisabled ? 'Troca já solicitada para este item' : 'Solicitar troca'}
+                      onClick={() => {
+                        if (isTradeDisabled) return
+                        onAction?.(item)
+                        onClose()
+                      }}
+                    >
+                      <SwapIcon />
+                      Solicitar Troca
+                    </button>
+                  </span>
                   <button
                     type="button"
                     className={`item-modal__action-btn item-modal__action-btn--secondary ${isFavorite ? 'item-modal__action-btn--favorited' : ''}`}

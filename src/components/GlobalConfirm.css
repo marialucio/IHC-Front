@@ -1,7 +1,7 @@
 .global-confirm {
   position: fixed;
   inset: 0;
-  z-index: 120;
+  z-index: 2200;
   display: grid;
   place-items: center;
   padding: 20px;
@@ -75,12 +75,19 @@
   box-shadow: var(--shadow-soft);
 }
 
+.global-confirm__btn--success {
+  color: #fff;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  box-shadow: var(--shadow-soft);
+}
+
 .global-confirm__btn--danger {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 .global-confirm__btn--confirm:hover,
-.global-confirm__btn--danger:hover {
+.global-confirm__btn--danger:hover,
+.global-confirm__btn--success:hover {
   opacity: 0.94;
 }
 

@@ -19,7 +19,7 @@ export function MeusItens() {
       title: 'Deletar item',
       message: `Tem certeza que deseja deletar "${item.titulo}"?`,
       confirmText: 'Deletar',
-      cancelText: 'Cancelar',
+      cancelText: 'Voltar',
       tone: 'danger',
     })
 

@@ -3,9 +3,11 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { Cadastro } from './pages/Cadastro'
+import { RecuperarSenha } from './pages/RecuperarSenha'
 import { Catalogo } from './pages/Catalogo'
 import { MeusItens } from './pages/MeusItens'
 import { Perfil } from './pages/Perfil'
+import { Solicitacoes } from './pages/Solicitacoes'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { GlobalConfirm } from './components/GlobalConfirm'
 import { useApp } from './context/AppContext'
@@ -26,6 +28,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
 
         {/* Autenticadas */}
         <Route
@@ -49,6 +52,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <MeusItens />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/solicitacoes"
+          element={
+            <ProtectedRoute>
+              <Solicitacoes />
             </ProtectedRoute>
           }
         />

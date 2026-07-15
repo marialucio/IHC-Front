@@ -91,6 +91,10 @@ export function Login() {
         </div>
 
         <p className="helper-text">
+          Esqueceu sua senha? <NavLink to="/recuperar-senha">Recupere</NavLink>
+        </p>
+
+        <p className="helper-text">
           Ainda não tem uma conta? <NavLink to="/cadastro">Cadastre-se</NavLink>
         </p>
       </form>
