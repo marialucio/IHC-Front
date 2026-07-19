@@ -316,6 +316,16 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
+.item-modal__action-btn--danger.item-modal__action-btn--disabled,
+.item-modal__action-btn--danger.item-modal__action-btn--disabled:hover {
+  background: #9ca3af;
+  color: #f9fafb;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  transition: none;
+}
+
 @keyframes favoriteHeartModal {
   0% {
     color: var(--color-primary);

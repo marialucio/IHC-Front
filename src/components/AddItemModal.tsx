@@ -2,11 +2,30 @@ import { useMemo, useRef, useState, type ChangeEvent, type FormEvent, type Point
 import { UploadIcon } from './icons'
 import { useApp } from '../context/AppContext'
 import { itemImg } from '../data/seed'
+import { BffApiError } from '../api/wsClient'
 import './AddItemModal.css'
 
 interface AddItemModalProps {
   isOpen: boolean
   onClose: () => void
+}
+
+const MAX_IMAGE_SIZE_BYTES = 700 * 1024
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result === 'string') {
+        resolve(result)
+        return
+      }
+      reject(new Error('Falha ao processar imagem selecionada.'))
+    }
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo de imagem.'))
+    reader.readAsDataURL(file)
+  })
 }
 
 export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
@@ -36,11 +55,22 @@ export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
     return Math.min(100, Math.max(0, value))
   }
 
-  function handleFile(e: ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
-      setPreview(URL.createObjectURL(file))
-      setErrors((prev) => ({ ...prev, preview: undefined }))
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        showAlert('warning', 'Imagem muito grande. Use arquivo de até 700 KB para cadastrar item.')
+        if (inputFile.current) inputFile.current.value = ''
+        return
+      }
+
+      try {
+        const dataUrl = await fileToDataUrl(file)
+        setPreview(dataUrl)
+        setErrors((prev) => ({ ...prev, preview: undefined }))
+      } catch {
+        showAlert('error', 'Não foi possível processar a imagem selecionada.')
+      }
     }
   }
 
@@ -98,7 +128,7 @@ export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
     setDragState(null)
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
 
     // Validar campos obrigatórios
@@ -118,8 +148,8 @@ export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
     setIsSubmitting(true)
     showAlert('loading', '')
 
-    setTimeout(() => {
-      addItem({
+    try {
+      await addItem({
         titulo,
         descricao,
         imagem: preview ?? itemImg,
@@ -132,9 +162,20 @@ export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
 
       showAlert('success', 'Item adicionado com sucesso!')
       handleReset()
-      setIsSubmitting(false)
       onClose()
-    }, 1200)
+    } catch (error) {
+      if (error instanceof BffApiError && error.topico.endsWith('_nao_autorizado')) {
+        showAlert('warning', 'Sua sessão expirou. Faça login novamente.')
+      } else if (error instanceof BffApiError && error.reason === 'timeout') {
+        showAlert('error', 'Não foi possível adicionar item. A imagem parece muito grande para envio.')
+      } else if (error instanceof Error && error.message.includes('Tempo limite excedido')) {
+        showAlert('error', 'Não foi possível adicionar item. A imagem parece muito grande para envio.')
+      } else {
+        showAlert('error', 'Não foi possível adicionar item agora.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function handleReset() {
@@ -269,7 +310,7 @@ export function AddItemModal({ isOpen, onClose }: AddItemModalProps) {
               className={`add-item-modal__field ${errors.localizacao ? 'add-item-modal__field--error' : ''}`}
               value={localizacao}
               onChange={(e) => handleLocalizacaoChange(e.target.value)}
-              placeholder="Localização (ex: São Paulo, SP)"
+              placeholder="Insira a localizacao"
               disabled={isSubmitting}
             />
           </div>

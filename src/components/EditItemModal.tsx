@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent,
 import type { Item } from '../types'
 import { UploadIcon } from './icons'
 import { useApp } from '../context/AppContext'
+import { BffApiError } from '../api/wsClient'
 import './AddItemModal.css'
 
 interface EditItemModalProps {
@@ -9,6 +10,22 @@ interface EditItemModalProps {
   isOpen: boolean
   onClose: () => void
   onSaved?: (item: Item) => void
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result === 'string') {
+        resolve(result)
+        return
+      }
+      reject(new Error('Falha ao processar imagem selecionada.'))
+    }
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo de imagem.'))
+    reader.readAsDataURL(file)
+  })
 }
 
 function parseImagePosition(pos?: string): { x: number; y: number } {
@@ -71,11 +88,16 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
     setErrors({})
   }, [isOpen, item])
 
-  function handleFile(e: ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
-      setPreview(URL.createObjectURL(file))
-      setErrors((prev) => ({ ...prev, preview: undefined }))
+      try {
+        const dataUrl = await fileToDataUrl(file)
+        setPreview(dataUrl)
+        setErrors((prev) => ({ ...prev, preview: undefined }))
+      } catch {
+        showAlert('error', 'Não foi possível processar a imagem selecionada.')
+      }
     }
   }
 
@@ -127,7 +149,7 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
     setDragState(null)
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!item) return
 
@@ -139,7 +161,7 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      showAlert('warning', 'Preencha todos os campos obrigatorios.')
+      showAlert('warning', 'Preencha todos os campos obrigatórios.')
       return
     }
 
@@ -147,18 +169,8 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
     setIsSubmitting(true)
     showAlert('loading', '')
 
-    setTimeout(() => {
-      const updatedItem: Item = {
-        ...item,
-        titulo,
-        descricao,
-        imagem: preview ?? item.imagem,
-        imagemPosicao,
-        localizacao,
-        termosTroca,
-      }
-
-      updateItem(item.id, {
+    try {
+      await updateItem(item.id, {
         titulo,
         descricao,
         imagem: preview ?? item.imagem,
@@ -169,11 +181,28 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
         termosTroca,
       })
 
+      const updatedItem: Item = {
+        ...item,
+        titulo,
+        descricao,
+        imagem: preview ?? item.imagem,
+        imagemPosicao,
+        localizacao,
+        termosTroca,
+      }
+
       showAlert('success', 'Item atualizado com sucesso!')
       onSaved?.(updatedItem)
-      setIsSubmitting(false)
       onClose()
-    }, 1200)
+    } catch (error) {
+      if (error instanceof BffApiError && error.topico.endsWith('_nao_autorizado')) {
+        showAlert('warning', 'Sua sessão expirou. Faça login novamente.')
+      } else {
+        showAlert('error', 'Não foi possível atualizar item agora.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen || !item) return null
@@ -209,7 +238,7 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
               >
                 <img
                   src={preview}
-                  alt="Pre-visualizacao"
+                  alt="Pré-visualização"
                   className="add-item-modal__upload-preview"
                   style={{ objectPosition: imagemPosicao }}
                   draggable={false}
@@ -279,25 +308,25 @@ export function EditItemModal({ item, isOpen, onClose, onSaved }: EditItemModalP
 
           <div className="add-item-modal__field-group">
             <label className="add-item-modal__label">
-              Localizacao <span className="add-item-modal__required">*</span>
+              Localização <span className="add-item-modal__required">*</span>
             </label>
             <input
               className={`add-item-modal__field ${errors.localizacao ? 'add-item-modal__field--error' : ''}`}
               value={localizacao}
               onChange={(e) => handleLocalizacaoChange(e.target.value)}
-              placeholder="Localizacao (ex: Sao Paulo, SP)"
+              placeholder="Insira a localização"
               disabled={isSubmitting}
             />
           </div>
 
           <div className="add-item-modal__field-group">
-            <label className="add-item-modal__label">O que voce quer em troca?</label>
+            <label className="add-item-modal__label">O que você quer em troca?</label>
             <textarea
               className="add-item-modal__field add-item-modal__textarea"
               rows={2}
               value={termosTroca}
               onChange={(e) => setTermosTroca(e.target.value)}
-              placeholder="Descreva o que voce quer em troca (opcional)"
+              placeholder="Descreva o que você quer em troca (opcional)"
               disabled={isSubmitting}
             />
           </div>

@@ -115,6 +115,42 @@
   font-size: 14px;
 }
 
+.field__password-wrap {
+  position: relative;
+}
+
+.field__password-wrap input {
+  padding-right: 44px !important;
+}
+
+.field__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #6b5b8d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.field__password-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.field__password-toggle:hover {
+  background: #f0e9fb;
+}
+
+.field__password-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .auth-card--compact .helper-text {
   margin-top: 8px;
   font-size: 14px;

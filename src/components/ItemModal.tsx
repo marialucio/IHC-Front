@@ -12,6 +12,8 @@ interface ItemModalProps {
   onFavorite?: (item: Item) => void
   isFavorite?: boolean
   variant?: 'catalog' | 'owner'
+  ownerActionsDisabled?: boolean
+  ownerActionsDisabledTooltip?: string
   onEdit?: (item: Item) => void
   onDelete?: (item: Item) => void
 }
@@ -34,6 +36,8 @@ export function ItemModal({
   onFavorite,
   isFavorite,
   variant = 'catalog',
+  ownerActionsDisabled = false,
+  ownerActionsDisabledTooltip,
   onEdit,
   onDelete,
 }: ItemModalProps) {
@@ -226,28 +230,42 @@ export function ItemModal({
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    className="item-modal__action-btn item-modal__action-btn--primary"
-                    onClick={() => {
-                      onEdit?.(item)
-                      onClose()
-                    }}
+                  <span
+                    className="item-modal__tooltip-wrapper"
+                    data-tooltip={ownerActionsDisabled ? ownerActionsDisabledTooltip : undefined}
                   >
-                    <PencilIcon />
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    className="item-modal__action-btn item-modal__action-btn--danger"
-                    onClick={() => {
-                      onDelete?.(item)
-                      onClose()
-                    }}
+                    <button
+                      type="button"
+                      className={`item-modal__action-btn item-modal__action-btn--primary ${ownerActionsDisabled ? 'item-modal__action-btn--disabled' : ''}`}
+                      disabled={ownerActionsDisabled}
+                      onClick={() => {
+                        if (ownerActionsDisabled) return
+                        onEdit?.(item)
+                        onClose()
+                      }}
+                    >
+                      <PencilIcon />
+                      Editar
+                    </button>
+                  </span>
+                  <span
+                    className="item-modal__tooltip-wrapper"
+                    data-tooltip={ownerActionsDisabled ? ownerActionsDisabledTooltip : undefined}
                   >
-                    <TrashIcon />
-                    Deletar
-                  </button>
+                    <button
+                      type="button"
+                      className={`item-modal__action-btn item-modal__action-btn--danger ${ownerActionsDisabled ? 'item-modal__action-btn--disabled' : ''}`}
+                      disabled={ownerActionsDisabled}
+                      onClick={() => {
+                        if (ownerActionsDisabled) return
+                        onDelete?.(item)
+                        onClose()
+                      }}
+                    >
+                      <TrashIcon />
+                      Deletar
+                    </button>
+                  </span>
                 </>
               )}
             </div>

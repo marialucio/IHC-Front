@@ -90,7 +90,7 @@ export function DashboardLayout({
     setIsEditing(false)
   }
 
-  function handleSalvar(event: FormEvent<HTMLFormElement>) {
+  async function handleSalvar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFieldErrors({})
 
@@ -124,17 +124,25 @@ export function DashboardLayout({
 
     showAlert('loading', '')
 
-    setTimeout(() => {
-      updateUser({
+    try {
+      const success = await updateUser({
         nomeCompleto: nome,
         apelido: nick,
         telefone: formatPhone(phoneDigits),
         email: mail,
         senha: user?.senha ?? '',
       })
+
+      if (!success) {
+        showAlert('error', 'Nao foi possivel salvar suas alteracoes agora. Tente novamente.')
+        return
+      }
+
       showAlert('success', 'Alteração realizada com sucesso!')
       setIsEditing(false)
-    }, 1200)
+    } catch {
+      showAlert('error', 'Nao foi possivel salvar suas alteracoes agora. Tente novamente.')
+    }
   }
 
   return (

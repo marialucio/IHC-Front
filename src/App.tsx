@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { Cadastro } from './pages/Cadastro'
-import { RecuperarSenha } from './pages/RecuperarSenha'
 import { Catalogo } from './pages/Catalogo'
 import { MeusItens } from './pages/MeusItens'
 import { Perfil } from './pages/Perfil'
@@ -28,7 +27,6 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
-        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
 
         {/* Autenticadas */}
         <Route

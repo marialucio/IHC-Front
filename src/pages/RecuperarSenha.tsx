@@ -81,7 +81,7 @@ export function RecuperarSenha() {
                 setFieldError(false)
               }
             }}
-            placeholder="voce@email.com"
+            placeholder="Insira seu email"
           />
         </div>
 

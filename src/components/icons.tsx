@@ -149,3 +149,23 @@ export function PhoneIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export function EyeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
+export function EyeOffIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M17.94 17.94A10.93 10.93 0 0 1 12 19C5 19 1 12 1 12a21.77 21.77 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A10.96 10.96 0 0 1 12 5c7 0 11 7 11 7a21.72 21.72 0 0 1-3.17 4.67" />
+      <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  )
+}

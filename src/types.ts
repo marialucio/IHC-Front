@@ -14,6 +14,7 @@ export interface Item {
   descricao: string
   imagem: string
   imagemPosicao?: ImagePosition
+  disponivelTroca?: boolean
   dono: string // apelido do dono
   categoria: string
   condicao: 'novo' | 'como_novo' | 'bom' | 'usado'
@@ -43,6 +44,7 @@ export interface TrocaContato {
 
 export interface Troca {
   id: string
+  itemDeId?: string
   itemParaId?: string
   itemDe: string
   itemPara: string

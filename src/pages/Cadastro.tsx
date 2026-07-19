@@ -7,6 +7,7 @@ import { useApp } from '../context/AppContext'
 export function Cadastro() {
   const { register, showAlert } = useApp()
   const navigate = useNavigate()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [form, setForm] = useState({
     nomeCompleto: '',
     apelido: '',
@@ -77,7 +78,7 @@ export function Cadastro() {
     })
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setFieldErrors({})
 
@@ -123,9 +124,10 @@ export function Cadastro() {
     }
 
     showAlert('loading', '')
+    setIsSubmitting(true)
 
-    setTimeout(() => {
-      register({
+    try {
+      const success = await register({
         nomeCompleto: nome,
         apelido,
         telefone: formatPhone(telefone),
@@ -133,9 +135,18 @@ export function Cadastro() {
         senha,
       })
 
+      if (!success) {
+        showAlert('error', 'Nao foi possivel concluir o cadastro com os dados informados.')
+        return
+      }
+
       showAlert('success', 'Cadastro realizado com sucesso!')
       navigate('/login')
-    }, 1200)
+    } catch {
+      showAlert('error', 'Nao foi possivel concluir o cadastro agora. Tente novamente em instantes.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -147,11 +158,12 @@ export function Cadastro() {
             id="nome"
             className={fieldErrors.nomeCompleto ? 'field__input--error' : ''}
             value={form.nomeCompleto}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('nomeCompleto', e.target.value)
               if (fieldErrors.nomeCompleto) setFieldErrors((prev) => ({ ...prev, nomeCompleto: undefined }))
             }}
-            placeholder="Fabiana Mendes Silva Oliveira"
+            placeholder="Insira seu nome completo"
             maxLength={100}
           />
         </div>
@@ -162,11 +174,12 @@ export function Cadastro() {
             id="apelido"
             className={fieldErrors.apelido ? 'field__input--error' : ''}
             value={form.apelido}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('apelido', e.target.value)
               if (fieldErrors.apelido) setFieldErrors((prev) => ({ ...prev, apelido: undefined }))
             }}
-            placeholder="Fabiana Mendes"
+            placeholder="Insira seu apelido"
             maxLength={20}
           />
         </div>
@@ -177,11 +190,12 @@ export function Cadastro() {
             id="telefone"
             className={fieldErrors.telefone ? 'field__input--error' : ''}
             value={form.telefone}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('telefone', e.target.value)
               if (fieldErrors.telefone) setFieldErrors((prev) => ({ ...prev, telefone: undefined }))
             }}
-            placeholder="(11) 99999-9999"
+            placeholder="Insira seu telefone"
           />
         </div>
 
@@ -191,11 +205,12 @@ export function Cadastro() {
             id="email"
             className={fieldErrors.email ? 'field__input--error' : ''}
             value={form.email}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('email', e.target.value)
               if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
             }}
-            placeholder="fabiana@email.com"
+            placeholder="Insira seu email"
             maxLength={100}
           />
         </div>
@@ -207,11 +222,12 @@ export function Cadastro() {
             className={fieldErrors.senha ? 'field__input--error' : ''}
             type="password"
             value={form.senha}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('senha', e.target.value)
               if (fieldErrors.senha) setFieldErrors((prev) => ({ ...prev, senha: undefined }))
             }}
-            placeholder="••••••••••"
+            placeholder="Insira sua senha"
           />
           <small className="field__hint">Mínimo de 8 caracteres, com letras maiúsculas, minúsculas e números.</small>
         </div>
@@ -223,16 +239,17 @@ export function Cadastro() {
             className={fieldErrors.confirmacao ? 'field__input--error' : ''}
             type="password"
             value={form.confirmacao}
+            disabled={isSubmitting}
             onChange={(e) => {
               update('confirmacao', e.target.value)
               if (fieldErrors.confirmacao) setFieldErrors((prev) => ({ ...prev, confirmacao: undefined }))
             }}
-            placeholder="••••••••••"
+            placeholder="Confirme sua senha"
           />
         </div>
 
         <div className="auth-card__actions auth-card__actions--compact">
-          <button type="submit" className="btn btn-primary auth-card__submit auth-card__submit--compact">
+          <button type="submit" className="btn btn-primary auth-card__submit auth-card__submit--compact" disabled={isSubmitting}>
             Cadastrar
           </button>
         </div>

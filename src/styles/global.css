@@ -49,6 +49,10 @@ body.profile-no-scroll {
   overflow: hidden;
 }
 
+body.landing-no-scroll {
+  overflow: hidden;
+}
+
 .page {
   flex: 1;
   width: 100%;

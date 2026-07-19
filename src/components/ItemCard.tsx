@@ -11,6 +11,8 @@ interface ItemCardProps {
   /** catalogo = ícones + dono; meu = ícones excluir/editar. */
   variant?: 'catalogo' | 'meu'
   showOwnerActions?: boolean
+  ownerActionsDisabled?: boolean
+  ownerActionsDisabledTooltip?: string
   onDelete?: (item: Item) => void
   onEdit?: (item: Item) => void
   onFavorite?: (item: Item) => void
@@ -24,6 +26,8 @@ export function ItemCard({
   tradeDisabledTooltip,
   variant = 'catalogo',
   showOwnerActions = false,
+  ownerActionsDisabled = false,
+  ownerActionsDisabledTooltip,
   onDelete,
   onEdit,
   onFavorite,
@@ -81,30 +85,38 @@ export function ItemCard({
             </>
           ) : showOwnerActions ? (
             <div className="item-card__icons item-card__icons--right">
-              <button
-                type="button"
-                className="icon-link"
-                title="Editar"
-                aria-label="Editar item"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit?.(item)
-                }}
-              >
-                <PencilIcon />
-              </button>
-              <button
-                type="button"
-                className="icon-link icon-link--danger"
-                title="Excluir"
-                aria-label="Excluir item"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete?.(item)
-                }}
-              >
-                <TrashIcon />
-              </button>
+              <span className="icon-link-tooltip" data-tooltip={ownerActionsDisabled ? ownerActionsDisabledTooltip : undefined}>
+                <button
+                  type="button"
+                  className={`icon-link ${ownerActionsDisabled ? 'icon-link--disabled' : ''}`}
+                  title={ownerActionsDisabled ? undefined : 'Editar'}
+                  aria-label={ownerActionsDisabled ? 'Edição indisponível para item trocado' : 'Editar item'}
+                  disabled={ownerActionsDisabled}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (ownerActionsDisabled) return
+                    onEdit?.(item)
+                  }}
+                >
+                  <PencilIcon />
+                </button>
+              </span>
+              <span className="icon-link-tooltip" data-tooltip={ownerActionsDisabled ? ownerActionsDisabledTooltip : undefined}>
+                <button
+                  type="button"
+                  className={`icon-link icon-link--danger ${ownerActionsDisabled ? 'icon-link--disabled' : ''}`}
+                  title={ownerActionsDisabled ? undefined : 'Excluir'}
+                  aria-label={ownerActionsDisabled ? 'Exclusão indisponível para item trocado' : 'Excluir item'}
+                  disabled={ownerActionsDisabled}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (ownerActionsDisabled) return
+                    onDelete?.(item)
+                  }}
+                >
+                  <TrashIcon />
+                </button>
+              </span>
             </div>
           ) : null}
         </div>

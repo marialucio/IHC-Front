@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Layout } from '../components/Layout'
 import { ItemCard } from '../components/ItemCard'
 import { ItemModal } from '../components/ItemModal'
 import { SearchIcon } from '../components/icons'
 import { useApp } from '../context/AppContext'
 import type { Item } from '../types'
+import { BffApiError } from '../api/wsClient'
 import './Catalogo.css'
 
 /** Frame 1 — Catálogo: grid de itens disponíveis para troca. */
@@ -13,6 +14,9 @@ export function Catalogo() {
     catalogo,
     meusItens,
     trocas,
+    loadCatalogo,
+    loadMeusItens,
+    loadTrocas,
     solicitarTroca,
     adicionarFavorito,
     removerFavorito,
@@ -27,57 +31,179 @@ export function Catalogo() {
   const [itemAlvoTroca, setItemAlvoTroca] = useState<Item | null>(null)
   const [itemSelecionadoTrocaId, setItemSelecionadoTrocaId] = useState<string | null>(null)
   const [permitirVoltarParaDetalhes, setPermitirVoltarParaDetalhes] = useState(false)
-  const mensagemTrocaJaSolicitada =
-    'Você já enviou uma solicitação para este item. Acompanhe o status na tela de Solicitações.'
+  const initialLoadDoneRef = useRef(false)
+  const mensagemSemItensDisponiveis =
+    'Você ainda não possui itens disponíveis para solicitar uma troca.'
+  const mensagemTrocaParJaSolicitada =
+    'Troca já solicitada.'
+  const meusItensDisponiveis = meusItens.filter((item) => item.disponivelTroca)
 
-  const termoConsultaNormalizado = normalizarTexto(termoAplicado.trim())
-  const itensFiltradosConsulta = termoConsultaNormalizado
-    ? catalogo.filter((item) => {
-        const alvoBusca = normalizarTexto(
-          `${item.titulo} ${item.descricao} ${item.categoria} ${item.dono} ${item.localizacao}`,
-        )
-        return alvoBusca.includes(termoConsultaNormalizado)
-      })
-    : catalogo
+  function mapTradeRequestErrorMessage(error: BffApiError) {
+    if (error.topico.endsWith('_nao_autorizado')) {
+      return 'Sua sessão expirou. Faça login novamente.'
+    }
+
+    if (error.reason === 'cannot_request_own_ad') {
+      return 'Você não pode solicitar troca para um item seu.'
+    }
+
+    if (error.reason === 'target_ad_not_found') {
+      return 'Esse item não foi encontrado para troca.'
+    }
+
+    if (error.reason === 'target_ad_unavailable') {
+      return 'Esse item não está mais disponível para troca.'
+    }
+
+    if (error.reason === 'requester_ad_not_found') {
+      return 'O item selecionado da sua lista não foi encontrado.'
+    }
+
+    if (error.reason === 'requester_ad_unavailable') {
+      return 'O item selecionado da sua lista não está mais disponível para troca.'
+    }
+
+    if (error.reason === 'ad_already_traded') {
+      return 'Um dos itens envolvidos já foi trocado e não aceita novas solicitações.'
+    }
+
+    if (error.reason === 'duplicate_trade_not_allowed') {
+      return mensagemTrocaParJaSolicitada
+    }
+
+    return 'Não foi possível enviar solicitação de troca agora.'
+  }
+
+  function mapFavoriteErrorMessage(error: BffApiError) {
+    if (error.topico.endsWith('_nao_autorizado')) {
+      return 'Sua sessão expirou. Faça login novamente.'
+    }
+
+    if (error.reason === 'cannot_favorite_own_ad') {
+      return 'Você não pode favoritar um item seu.'
+    }
+
+    if (error.reason === 'ad_unavailable') {
+      return 'Esse item não está mais disponível para troca.'
+    }
+
+    if (error.reason === 'ad_not_found') {
+      return 'Esse item não foi encontrado.'
+    }
+
+    if (error.topico === 'sistema.mensagem.nao_reconhecida' || error.topico.endsWith('_falhou')) {
+      return 'O recurso de favoritos ainda não está disponível no servidor.'
+    }
+
+    return 'Não foi possível atualizar favoritos agora.'
+  }
 
   const itensVisiveis = mostrarSomenteFavoritos
-    ? itensFiltradosConsulta.filter((item) => ehFavorito(item.id))
-    : itensFiltradosConsulta
+    ? catalogo.filter((item) => ehFavorito(item.id))
+    : catalogo
 
-  function normalizarTexto(texto: string) {
-    return texto
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-  }
+  useEffect(() => {
+    if (initialLoadDoneRef.current) return
+    initialLoadDoneRef.current = true
+
+    let mounted = true
+
+    async function carregarCatalogoInicial() {
+      try {
+        await Promise.all([loadCatalogo(), loadTrocas(), loadMeusItens()])
+      } catch {
+        if (!mounted) return
+        showAlert('error', 'Não foi possível carregar o catálogo agora. Tente novamente.')
+      }
+    }
+
+    void carregarCatalogoInicial()
+
+    return () => {
+      mounted = false
+    }
+  }, [loadCatalogo, loadMeusItens, loadTrocas, showAlert])
 
   async function handleConsultar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    const termo = consulta.trim()
 
-    // Placeholder de consulta remota: quando API existir, substituir pelo fetch real aqui.
     showAlert('loading', '')
 
-    await new Promise((resolve) => window.setTimeout(resolve, 500))
-
-    setTermoAplicado(consulta)
-    showAlert('success', '')
+    try {
+      await loadCatalogo(termo)
+      setTermoAplicado(termo)
+      showAlert('success', '')
+    } catch (error) {
+      if (error instanceof BffApiError && error.topico.endsWith('_nao_autorizado')) {
+        showAlert('warning', 'Sua sessão expirou. Faça login novamente.')
+        return
+      }
+      showAlert('error', 'Não foi possível consultar o catálogo agora. Tente novamente.')
+    }
   }
 
-  function abrirSelecaoTroca(item: Item, podeVoltarParaDetalhes: boolean) {
-    if (possuiTrocaPendenteParaItem(item)) return
+  function possuiTrocaNaoCanceladaParaPar(
+    itemAlvoId: string,
+    meuItemId: string,
+    trocasLista: typeof trocas = trocas,
+  ) {
+    return trocasLista.some(
+      (troca) =>
+        troca.direcao === 'de_mim' &&
+        troca.status !== 'cancelada' &&
+        troca.itemParaId === itemAlvoId &&
+        troca.itemDeId === meuItemId,
+    )
+  }
+
+  function listarItensElegiveisParaTroca(
+    itemAlvo: Item,
+    itensDisponiveisLista: typeof meusItensDisponiveis = meusItensDisponiveis,
+    trocasLista: typeof trocas = trocas,
+  ) {
+    return itensDisponiveisLista.filter(
+      (itemMeu) => !possuiTrocaNaoCanceladaParaPar(itemAlvo.id, itemMeu.id, trocasLista),
+    )
+  }
+
+  function solicitacaoDesabilitadaParaItemAlvo(itemAlvo: Item) {
+    if (meusItensDisponiveis.length === 0) return true
+    return listarItensElegiveisParaTroca(itemAlvo).length === 0
+  }
+
+  async function abrirSelecaoTroca(item: Item, podeVoltarParaDetalhes: boolean) {
+    if (solicitacaoDesabilitadaParaItemAlvo(item)) return
+
+    try {
+      const [meusItensCarregados, trocasCarregadas] = await Promise.all([
+        loadMeusItens(),
+        loadTrocas(),
+      ])
+
+      const itensDisponiveisCarregados = meusItensCarregados.filter((item) => item.disponivelTroca)
+
+      if (itensDisponiveisCarregados.length === 0) {
+        showAlert('warning', mensagemSemItensDisponiveis)
+        return
+      }
+
+      if (listarItensElegiveisParaTroca(item, itensDisponiveisCarregados, trocasCarregadas).length === 0) {
+        showAlert('warning', mensagemTrocaParJaSolicitada)
+        return
+      }
+    } catch (error) {
+      if (error instanceof BffApiError && error.topico.endsWith('_nao_autorizado')) {
+        showAlert('warning', 'Sua sessão expirou. Faça login novamente.')
+      } else {
+        showAlert('error', 'Não foi possível carregar seus itens e solicitações agora. Tente novamente.')
+      }
+      return
+    }
 
     setItemAlvoTroca(item)
     setItemSelecionadoTrocaId(null)
     setPermitirVoltarParaDetalhes(podeVoltarParaDetalhes)
-  }
-
-  function possuiTrocaPendenteParaItem(item: Item) {
-    return trocas.some(
-      (troca) =>
-        troca.direcao === 'de_mim' &&
-        troca.status === 'pendente' &&
-        (troca.itemParaId === item.id || (troca.itemPara === item.titulo && troca.contraparte === item.dono)),
-    )
   }
 
   function fecharSelecaoTroca() {
@@ -87,11 +213,11 @@ export function Catalogo() {
   }
 
   function handleSolicitarDoCard(item: Item) {
-    abrirSelecaoTroca(item, false)
+    void abrirSelecaoTroca(item, false)
   }
 
   function handleSolicitarDoDetalhe(item: Item) {
-    abrirSelecaoTroca(item, true)
+    void abrirSelecaoTroca(item, true)
   }
 
   async function handleConfirmarTroca() {
@@ -99,7 +225,8 @@ export function Catalogo() {
 
     const alvoTroca = itemAlvoTroca
     const podeVoltarParaDetalhes = permitirVoltarParaDetalhes
-    const meuItemSelecionado = meusItens.find((item) => item.id === itemSelecionadoTrocaId)
+    const itensElegiveis = listarItensElegiveisParaTroca(alvoTroca)
+    const meuItemSelecionado = itensElegiveis.find((item) => item.id === itemSelecionadoTrocaId)
 
     if (!meuItemSelecionado) {
       showAlert('warning', 'Selecione um item da sua lista para continuar.')
@@ -125,8 +252,21 @@ export function Catalogo() {
       return
     }
 
-    solicitarTroca(alvoTroca, meuItemSelecionado)
-    fecharSelecaoTroca()
+    try {
+      await solicitarTroca(alvoTroca, meuItemSelecionado)
+      showAlert('success', 'Solicitação de troca enviada com sucesso!')
+      fecharSelecaoTroca()
+    } catch (error) {
+      if (error instanceof BffApiError) {
+        const message = mapTradeRequestErrorMessage(error)
+        showAlert(error.topico.endsWith('_nao_autorizado') ? 'warning' : 'error', message)
+      } else {
+        showAlert('error', 'Não foi possível enviar solicitação de troca agora.')
+      }
+      setItemAlvoTroca(alvoTroca)
+      setItemSelecionadoTrocaId(meuItemSelecionado.id)
+      setPermitirVoltarParaDetalhes(podeVoltarParaDetalhes)
+    }
   }
 
   function handleVoltarNaSelecaoTroca() {
@@ -136,11 +276,20 @@ export function Catalogo() {
     fecharSelecaoTroca()
   }
 
-  function handleToggleFavorito(item: Item) {
-    if (ehFavorito(item.id)) {
-      removerFavorito(item.id)
-    } else {
-      adicionarFavorito(item)
+  async function handleToggleFavorito(item: Item) {
+    try {
+      if (ehFavorito(item.id)) {
+        await removerFavorito(item.id)
+      } else {
+        await adicionarFavorito(item)
+      }
+    } catch (error) {
+      if (error instanceof BffApiError) {
+        const message = mapFavoriteErrorMessage(error)
+        showAlert(error.topico.endsWith('_nao_autorizado') ? 'warning' : 'error', message)
+      } else {
+        showAlert('error', 'Não foi possível atualizar favoritos agora.')
+      }
     }
   }
 
@@ -156,7 +305,7 @@ export function Catalogo() {
                 value={consulta}
                 onChange={(e) => setConsulta(e.target.value)}
                 className="catalogo-toolbar__search-input"
-                placeholder="Consultar item, categoria, local..."
+                placeholder="Consultar por titulo do item..."
                 aria-label="Consultar no catálogo"
               />
               <button type="submit" className="catalogo-toolbar__search-btn" aria-label="Buscar">
@@ -200,8 +349,8 @@ export function Catalogo() {
                 <ItemCard
                   item={item}
                   onAction={handleSolicitarDoCard}
-                  isTradeDisabled={possuiTrocaPendenteParaItem(item)}
-                  tradeDisabledTooltip={mensagemTrocaJaSolicitada}
+                  isTradeDisabled={solicitacaoDesabilitadaParaItemAlvo(item)}
+                  tradeDisabledTooltip={mensagemTrocaParJaSolicitada}
                   onFavorite={handleToggleFavorito}
                   isFavorite={ehFavorito(item.id)}
                 />
@@ -214,8 +363,8 @@ export function Catalogo() {
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
           onAction={handleSolicitarDoDetalhe}
-          isTradeDisabled={selectedItem ? possuiTrocaPendenteParaItem(selectedItem) : false}
-          tradeDisabledTooltip={mensagemTrocaJaSolicitada}
+          isTradeDisabled={selectedItem ? solicitacaoDesabilitadaParaItemAlvo(selectedItem) : false}
+          tradeDisabledTooltip={mensagemTrocaParJaSolicitada}
           onFavorite={handleToggleFavorito}
           isFavorite={selectedItem ? ehFavorito(selectedItem.id) : false}
         />
@@ -228,25 +377,37 @@ export function Catalogo() {
                 Item desejado: <strong>{itemAlvoTroca.titulo}</strong>
               </p>
 
-              {meusItens.length === 0 ? (
-                <p className="catalogo-trade-modal__empty">
-                  Voce ainda nao possui itens cadastrados para solicitar uma troca.
-                </p>
-              ) : (
-                <div className="catalogo-trade-modal__list" role="radiogroup" aria-label="Selecao de item para troca">
-                  {meusItens.map((item) => (
-                    <label key={item.id} className="catalogo-trade-modal__option">
-                      <input
-                        type="radio"
-                        name="meu-item-troca"
-                        checked={itemSelecionadoTrocaId === item.id}
-                        onChange={() => setItemSelecionadoTrocaId(item.id)}
-                      />
-                      <span>{item.titulo}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const itensElegiveis = listarItensElegiveisParaTroca(itemAlvoTroca)
+
+                if (meusItensDisponiveis.length === 0) {
+                  return (
+                    <p className="catalogo-trade-modal__empty">
+                          {mensagemSemItensDisponiveis}
+                    </p>
+                  )
+                }
+
+                if (itensElegiveis.length === 0) {
+                  return <p className="catalogo-trade-modal__empty">{mensagemTrocaParJaSolicitada}</p>
+                }
+
+                return (
+                  <div className="catalogo-trade-modal__list" role="radiogroup" aria-label="Selecao de item para troca">
+                    {itensElegiveis.map((item) => (
+                      <label key={item.id} className="catalogo-trade-modal__option">
+                        <input
+                          type="radio"
+                          name="meu-item-troca"
+                          checked={itemSelecionadoTrocaId === item.id}
+                          onChange={() => setItemSelecionadoTrocaId(item.id)}
+                        />
+                        <span>{item.titulo}</span>
+                      </label>
+                    ))}
+                  </div>
+                )
+              })()}
 
               <div className="catalogo-trade-modal__actions">
                 <button

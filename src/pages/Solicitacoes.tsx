@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Layout } from '../components/Layout'
 import { CatalogIcon, MailIcon, MyItemsIcon, PhoneIcon, ProfileIcon, SearchIcon, SwapIcon } from '../components/icons'
 import { useApp } from '../context/AppContext'
 import type { Troca, TrocaStatus } from '../types'
+import { BffApiError } from '../api/wsClient'
 import './Solicitacoes.css'
 
 type ModoSolicitacoes = 'de_mim' | 'para_mim'
@@ -31,10 +32,11 @@ function labelDataResposta(status: TrocaStatus) {
 }
 
 export function Solicitacoes() {
-  const { trocas, aceitarSolicitacao, recusarSolicitacao, cancelarSolicitacao, confirm, showAlert } = useApp()
+  const { trocas, loadTrocas, aceitarSolicitacao, recusarSolicitacao, cancelarSolicitacao, confirm, showAlert } = useApp()
   const [modo, setModo] = useState<ModoSolicitacoes>('de_mim')
   const [selectedTroca, setSelectedTroca] = useState<Troca | null>(null)
   const [fotoSelecionada, setFotoSelecionada] = useState<FotoSelecionada>(null)
+  const initialLoadDoneRef = useRef(false)
 
   const solicitacoesVisiveis = useMemo(
     () =>
@@ -46,13 +48,41 @@ export function Solicitacoes() {
     [modo, trocas],
   )
 
-  function runActionWithFeedback(action: () => void, successMessage: string) {
+  useEffect(() => {
+    if (initialLoadDoneRef.current) return
+    initialLoadDoneRef.current = true
+
+    let mounted = true
+
+    async function carregarSolicitacoes() {
+      try {
+        await loadTrocas()
+      } catch {
+        if (!mounted) return
+        showAlert('error', 'Não foi possível carregar solicitações agora.')
+      }
+    }
+
+    void carregarSolicitacoes()
+
+    return () => {
+      mounted = false
+    }
+  }, [loadTrocas, showAlert])
+
+  async function runActionWithFeedback(action: () => Promise<void>, successMessage: string) {
     showAlert('loading', '')
 
-    setTimeout(() => {
-      action()
+    try {
+      await action()
       showAlert('success', successMessage)
-    }, 1000)
+    } catch (error) {
+      if (error instanceof BffApiError && error.topico.endsWith('_nao_autorizado')) {
+        showAlert('warning', 'Sua sessão expirou. Faça login novamente.')
+      } else {
+        showAlert('error', 'Não foi possível concluir essa ação agora.')
+      }
+    }
   }
 
   async function handleAceitar(id: string) {
@@ -66,7 +96,7 @@ export function Solicitacoes() {
 
     if (!confirmed) return
 
-    runActionWithFeedback(() => aceitarSolicitacao(id), 'Solicitação aceita com sucesso!')
+    await runActionWithFeedback(() => aceitarSolicitacao(id), 'Solicitação aceita com sucesso!')
   }
 
   async function handleRecusar(id: string) {
@@ -80,7 +110,7 @@ export function Solicitacoes() {
 
     if (!confirmed) return
 
-    runActionWithFeedback(() => recusarSolicitacao(id), 'Solicitação recusada com sucesso!')
+    await runActionWithFeedback(() => recusarSolicitacao(id), 'Solicitação recusada com sucesso!')
   }
 
   async function handleCancelar(id: string) {
@@ -94,7 +124,7 @@ export function Solicitacoes() {
 
     if (!confirmed) return
 
-    runActionWithFeedback(() => cancelarSolicitacao(id), 'Solicitação cancelada com sucesso!')
+    await runActionWithFeedback(() => cancelarSolicitacao(id), 'Solicitação cancelada com sucesso!')
   }
 
   const trocaSelecionadaAtualizada = selectedTroca

@@ -95,11 +95,13 @@
   color: #9ca3af;
   cursor: not-allowed;
   transform: none;
+  transition: none;
 }
 
 .icon-link--disabled:hover {
   color: #9ca3af;
   transform: none;
+  transition: none;
 }
 
 .icon-link-tooltip {

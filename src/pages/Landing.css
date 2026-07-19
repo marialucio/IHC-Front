@@ -1,3 +1,9 @@
+.landing-shell {
+  min-height: 100vh;
+  padding-bottom: 0;
+  overflow-y: hidden;
+}
+
 .landing-header {
   padding: 14px 20px 0;
 }
@@ -51,9 +57,9 @@
   padding: 40px 20px;
 }
 .landing-logo {
-  width: 572px;
-  height: 572px;
-  max-width: 70vw;
-  max-height: 70vh;
+  width: 460px;
+  height: 460px;
+  max-width: 62vw;
+  max-height: 62vh;
   object-fit: contain;
 }

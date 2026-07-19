@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout'
+import { EyeIcon, EyeOffIcon } from '../components/icons'
 import { useApp } from '../context/AppContext'
 
 /** Frame 4 — Login: Email + Senha, botão "Acessar". */
@@ -9,13 +10,15 @@ export function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{ email?: boolean; senha?: boolean }>({})
 
   function isValidEmail(value: string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
 
     const mail = email.trim()
@@ -37,12 +40,24 @@ export function Login() {
     }
 
     setFieldErrors({})
+    setIsSubmitting(true)
+    showAlert('loading', '')
 
-    if (login(mail, password)) {
-      navigate('/catalogo')
-    } else {
+    try {
+      const success = await login(mail, password)
+
+      if (success) {
+        showAlert('success', 'Login realizado com sucesso!')
+        navigate('/catalogo')
+        return
+      }
+
       setFieldErrors({ email: true, senha: true })
       showAlert('error', 'Email ou senha inválidos.')
+    } catch {
+      showAlert('error', 'Não foi possível concluir o login agora. Tente novamente em instantes.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -56,43 +71,53 @@ export function Login() {
             className={fieldErrors.email ? 'field__input--error' : ''}
             autoComplete="email"
             value={email}
+            disabled={isSubmitting}
             onChange={(e) => {
               setEmail(e.target.value)
               if (fieldErrors.email) {
                 setFieldErrors((prev) => ({ ...prev, email: undefined }))
               }
             }}
-            placeholder="fabiana@email.com"
+            placeholder="Insira seu email"
           />
         </div>
 
         <div className="field">
           <label htmlFor="senha">Senha <span className="field__required">*</span></label>
-          <input
-            id="senha"
-            className={fieldErrors.senha ? 'field__input--error' : ''}
-            type="password"
-            autoComplete="current-password"
-            value={senha}
-            onChange={(e) => {
-              setSenha(e.target.value)
-              if (fieldErrors.senha) {
-                setFieldErrors((prev) => ({ ...prev, senha: undefined }))
-              }
-            }}
-            placeholder="••••••••••"
-          />
+          <div className="field__password-wrap">
+            <input
+              id="senha"
+              className={fieldErrors.senha ? 'field__input--error' : ''}
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={senha}
+              disabled={isSubmitting}
+              onChange={(e) => {
+                setSenha(e.target.value)
+                if (fieldErrors.senha) {
+                  setFieldErrors((prev) => ({ ...prev, senha: undefined }))
+                }
+              }}
+              placeholder="Insira sua senha"
+            />
+            <button
+              type="button"
+              className="field__password-toggle"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              disabled={isSubmitting}
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
         </div>
 
         <div className="auth-card__actions auth-card__actions--login">
-          <button type="submit" className="btn btn-primary auth-card__submit auth-card__submit--login">
+          <button type="submit" className="btn btn-primary auth-card__submit auth-card__submit--login" disabled={isSubmitting}>
             Acessar
           </button>
         </div>
-
-        <p className="helper-text">
-          Esqueceu sua senha? <NavLink to="/recuperar-senha">Recupere</NavLink>
-        </p>
 
         <p className="helper-text">
           Ainda não tem uma conta? <NavLink to="/cadastro">Cadastre-se</NavLink>
