@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Footer } from '../components/Layout'
 import './Landing.css'
@@ -5,8 +6,16 @@ import './Landing.css'
 /** Frame 5 — tela inicial: header roxo (Cadastrar/Acessar) + logo central. */
 export function Landing() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.body.classList.add('landing-no-scroll')
+    return () => {
+      document.body.classList.remove('landing-no-scroll')
+    }
+  }, [])
+
   return (
-    <div className="app-shell">
+    <div className="app-shell landing-shell">
       <header className="landing-header">
         <div className="landing-header__bar">
           <div className="landing-header__actions">

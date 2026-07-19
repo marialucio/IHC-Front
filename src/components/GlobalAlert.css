@@ -1,0 +1,97 @@
+@keyframes globalAlertEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.global-alert-wrap {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.global-alert {
+  max-width: min(92vw, 640px);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-elev);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  border: 1px solid transparent;
+  pointer-events: auto;
+  animation: globalAlertEnter 280ms ease;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.global-alert--leaving {
+  animation: none;
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.global-alert--success {
+  background: #239b56;
+  border-color: #1d8449;
+}
+
+.global-alert--error {
+  background: #c0392b;
+  border-color: #a93226;
+}
+
+.global-alert--warning {
+  background: #e0aa10;
+  color: #3f2d00;
+  border-color: #c49008;
+}
+
+.global-alert__icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 300ms ease;
+}
+
+.global-alert__message {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  transition: opacity 300ms ease;
+}
+
+.global-alert--loading {
+  background: #6f6f6f;
+  border-color: #525252;
+}
+
+@keyframes spinnerRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.global-alert__icon--spinner {
+  animation: spinnerRotate 1s linear infinite;
+}

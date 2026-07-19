@@ -1,0 +1,104 @@
+.global-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 2200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.global-confirm__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 14, 34, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.global-confirm__card {
+  position: relative;
+  width: min(92vw, 460px);
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-elev);
+  border: 1px solid #ece6f8;
+  padding: 22px 22px 18px;
+  animation: globalConfirmEnter 220ms ease;
+}
+
+.global-confirm__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+  margin-bottom: 10px;
+}
+
+.global-confirm__message {
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  margin-bottom: 18px;
+}
+
+.global-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.global-confirm__btn {
+  min-height: 44px;
+  min-width: 112px;
+  border-radius: 12px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.08s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+.global-confirm__btn:active {
+  transform: translateY(1px);
+}
+
+.global-confirm__btn--cancel {
+  background: #f0f0f0;
+  color: var(--color-text-strong);
+}
+
+.global-confirm__btn--cancel:hover {
+  background: #e5e5e5;
+}
+
+.global-confirm__btn--confirm,
+.global-confirm__btn--danger {
+  color: #fff;
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-soft);
+}
+
+.global-confirm__btn--success {
+  color: #fff;
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.global-confirm__btn--danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.global-confirm__btn--confirm:hover,
+.global-confirm__btn--danger:hover,
+.global-confirm__btn--success:hover {
+  opacity: 0.94;
+}
+
+@keyframes globalConfirmEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

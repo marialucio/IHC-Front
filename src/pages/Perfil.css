@@ -83,3 +83,67 @@
     grid-template-columns: 1fr;
   }
 }
+
+.perfil-page {
+  width: 100%;
+}
+
+.perfil-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 24px 0;
+}
+
+.perfil-card {
+  width: min(100%, 660px);
+  padding: 36px;
+}
+
+.perfil-card h2 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.perfil-subtitle {
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.perfil-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.perfil-success,
+.perfil-error {
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 15px;
+  margin-top: 14px;
+}
+
+.perfil-error {
+  background: #fdecec;
+  border: 1px solid #e06b6b;
+  color: #a32020;
+}
+
+.perfil-success {
+  background: #e9f8ef;
+  border: 1px solid #67b87d;
+  color: #1f5f33;
+}
+
+@media (max-width: 900px) {
+  .perfil-stage {
+    padding: 16px 0;
+  }
+
+  .perfil-card {
+    padding: 28px;
+  }
+}

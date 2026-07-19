@@ -42,6 +42,15 @@ textarea {
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  padding-bottom: 48px;
+}
+
+body.profile-no-scroll {
+  overflow: hidden;
+}
+
+body.landing-no-scroll {
+  overflow: hidden;
 }
 
 .page {
@@ -49,7 +58,7 @@ textarea {
   width: 100%;
   max-width: 1880px;
   margin: 0 auto;
-  padding: 24px 40px 80px;
+  padding: 24px 40px 36px;
 }
 
 /* ---------- Botões ---------- */
