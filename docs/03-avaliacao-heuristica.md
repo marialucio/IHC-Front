@@ -27,7 +27,23 @@
 
 ## 3.1 Avaliações individuais
 
-### Avaliador 1 — _[Nome]_
+### Avaliador 1 — Matheus Alfradique
+
+| # | Heurística | Local | Justificativa | Severidade | Proposta de solução |
+|---|---|---|---|---|---|
+| 1 | H3 | Barra superior | Em todas as telas não há botão claro de retorno a página anterior. O usuário fica dependente do browser para retornar a página anterior. | 5 | Adicionar um botão de retorno em todas as telas. |
+| 2 | H10 | Sistema | Não há documentação alguma. | 4 | Adicionar pop-ups com descrição de todos os objetos clicáveis. Adicionar uma página de ajuda explicando as jornadas dos usuários e oq precisam fazer para alcançar seus objetivos e um link para a mesma na barra superior. |
+| 3 | H2 | Tela "Inicial" | O texto "Acessar" não deixa suficientemente claro que o usuário deve fazer um login. Acessar não implica autenticação e ambiente privado. | 3 | Trocar para "Acesse sua conta" ou "Faça seu Login", ao mesmo tempo padrões do mercado e ambinete e correspondentes ao mundo real. |
+| 4 | H5 | Tela "Inicial" | Existe apenas a informação da logo (muito grande). O usuário precisa se lembrar de qual produto ela representa. Em uma tela incial onde o usuário está ainda conhecendo o sistema é confuso. | 1 | Reduzir o tamanho da imagem e adicionar um título claro do sistema para que o usuário apenas relembre e não tenha que lembrar de qual sistema está conehecendo. |
+| 5 | H3 H4 H5 H6 | Tela "Catálogo" e Barra superior | Assim que o login é realizado o usuário é redirecionado a tela de catálogo. Não está claro aqui que essa é a Home-page. Fica confuso de para qual tela eu retorno caso quiser recomeçar a interação com o usuário. Ambos botões catálogo e logo levam ao mesmo lugar. | 3 | Adicionar um símbolo de "casa" padrão de mercado ao lado do link para catálogo na barra superior, e destacar a página com fonte maior ou posicionamento privilegiado a esquerda. |
+| 6 | H1 H6 H8 | Tela "Catálogo" | O botão de favoritar não é responsivo. Nada acontece para alertar o usuário que o item foi adicionado a sua lista de desejos/favoritos ou que houve algum erro. | 4 | Adicionar resposta ao clique indicando que a funcionalidade estará disponível em breve, deixar o botão acinzentado, não clicável e emitir uma pop-up de texto avisando que logo mais vem nova feature. Fazer o mesmo para a barra superior adicionando o tópico com "Meus favoritos", "Minha Lista" entre outros. |
+| 7 | H5 | Tela "Catálogo" | A resposta do botão de realizar troca emite um pop-up estático no topo da página que nem sempre é visível, especialmente quando rolamos a tela para baixo. | 4 | Alterar pop-up para surgir sempre em um local visível da tela. |
+| 8 | H4 | Tela "Catálogo" | O botão de troca por si só não é auto-explicativo o suficiente (em contrapartida com o de favoritar) | 3 | Adicionar um tutorial ao logar pela primeria ver um texto curto e um pop-up de confirmação do pedido de troca. Assim o usuário consegue se autoservir melhor sem poluir muito a tela. |
+| 9 | H10 | Sistema | Não há documentação que explique como as trocas são realizadas e até onde o sistema vai. | 4 | Adicionar um tutorial no primeiro login que explica que o sistema vai apenas até o envio do e-mail com a proposta de troca e contato do outro cliente caso a troca seja aceita. Sempre que o cliente enviar um pedido de troca deixar claro quais são os próximos passos em mensagem. |
+| 10 | H3 H4 | Barra superior | A jornada de finalização de sessão está escondida na tela de "Perfil" | 3 | Mover o botão de sair da tela "Perfil" para a barra superior canto direito. |
+| 11 | H5 | Sistema | Apenas a barra superior é estática a rolagem. Em todas as telas há informações importantes que deveriam ficar fixadas. | 1 | Cada tela deve ter sua própria barra fixada (lateral ou superior) que mantenha fixa todas as informações que precisam estar visíveis ao usuário durante a rolagem. |
+
+### Avaliador 2 — _[Nome]_
 
 | # | Heurística | Local | Justificativa | Severidade | Proposta de solução |
 |---|---|---|---|---|---|
@@ -37,7 +53,7 @@
 | 4 | H6 — Reconhecimento | Tela "Perfil" | O select "Seus itens / Minhas trocas" não tem rótulo explícito; o usuário pode não perceber que pode trocar de seção ali. | 2 | Adicionar um rótulo "Visualizar:" antes do select, ou usar abas em vez de select. |
 | 5 | H10 — Ajuda e documentação | Sistema todo | Não há nenhum tipo de ajuda, FAQ, ou orientação sobre como funciona uma troca dentro da plataforma. | 2 | Adicionar página "Como funciona" acessível pelo header. |
 
-### Avaliador 2 — _[Nome]_
+### Avaliador 3 — _[Nome]_
 
 | # | Heurística | Local | Justificativa | Severidade | Proposta de solução |
 |---|---|---|---|---|---|
@@ -47,7 +63,7 @@
 | 4 | H7 — Flexibilidade | Tela "Catálogo" | Não há campo de busca nem filtros (por categoria, por dono). Em um catálogo grande, fica difícil encontrar itens específicos. | 3 | Adicionar barra de busca e filtros básicos. |
 | 5 | H2 — Correspondência com o mundo real | Cards do catálogo | Os ícones ❤ (coração) e ⇄ (setas) não têm rótulos. Usuários novos podem não entender o que cada um faz. | 2 | Adicionar tooltips visíveis ou texto auxiliar ao passar o mouse. |
 
-### Avaliador 3 — _[Nome]_
+### Avaliador 4 — _[Nome]_
 
 | # | Heurística | Local | Justificativa | Severidade | Proposta de solução |
 |---|---|---|---|---|---|
